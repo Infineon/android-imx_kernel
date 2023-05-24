@@ -232,6 +232,19 @@ struct esdhc_platform_data {
 	bool sdio_async_interrupt_enabled;
 };
 
+static struct mmc_host *wifi_mmc_host;
+void wifi_card_detect(bool on)
+{
+	WARN_ON(!wifi_mmc_host);
+	if (on) {
+		mmc_detect_change(wifi_mmc_host, 0);
+	} else {
+		if (wifi_mmc_host->card)
+			mmc_sdio_force_remove(wifi_mmc_host);
+	}
+}
+EXPORT_SYMBOL(wifi_card_detect);
+
 struct esdhc_soc_data {
 	u32 flags;
 };
@@ -1605,6 +1618,12 @@ sdhci_esdhc_imx_probe_dt(struct platform_device *pdev,
 
 	if (mmc_gpio_get_cd(host->mmc) >= 0)
 		host->quirks &= ~SDHCI_QUIRK_BROKEN_CARD_DETECTION;
+
+	if (of_get_property(np, "wifi-host", NULL)) {
+		wifi_mmc_host = host->mmc;
+		host->quirks2 |= SDHCI_QUIRK2_SDIO_IRQ_THREAD;
+		dev_dbg(mmc_dev(host->mmc), "assigned as wifi host\n");
+	}
 
 	return 0;
 }
