@@ -507,6 +507,7 @@ struct mmc_host {
 #ifdef CONFIG_FAIL_MMC_REQUEST
 	struct fault_attr	fail_mmc_request;
 #endif
+#define MMC_CAP2_CD_POST	(1 << 28)	/* post card rescan, let client driver to start */
 
 	unsigned int		actual_clock;	/* Actual HC clock rate */
 

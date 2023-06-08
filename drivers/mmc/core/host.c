@@ -324,6 +324,8 @@ int mmc_of_parse(struct mmc_host *host)
 
 	if (device_property_read_bool(dev, "non-removable")) {
 		host->caps |= MMC_CAP_NONREMOVABLE;
+		if (device_property_read_bool(dev, "cd-post"))
+			host->caps2 |= MMC_CAP2_CD_POST;
 	} else {
 		if (device_property_read_bool(dev, "cd-inverted"))
 			host->caps2 |= MMC_CAP2_CD_ACTIVE_HIGH;
@@ -411,7 +413,6 @@ int mmc_of_parse(struct mmc_host *host)
 	if (device_property_read_bool(dev, "no-mmc-hs400"))
 		host->caps2 &= ~(MMC_CAP2_HS400_1_8V | MMC_CAP2_HS400_1_2V |
 				 MMC_CAP2_HS400_ES);
-
 	/* Must be after "non-removable" check */
 	if (device_property_read_u32(dev, "fixed-emmc-driver-type", &drv_type) == 0) {
 		if (host->caps & MMC_CAP_NONREMOVABLE)
