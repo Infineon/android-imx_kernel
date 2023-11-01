@@ -5,7 +5,25 @@
 
 #include "imx8mq-evk.dts"
 
-/ {
+/*/ {
+     interrupt-parent = <&gic>;
+   };
+
+  &gpc {
+    /delete-property/ interrupts;
+    /delete-property/ interrupt-parent;
+    /delete-property/ interrupt-controller;
+    /delete-property/ broken-wake-request-signals;
+    /delete-property/ #interrupt-cells;
+  };*/
+
+
+	//cell property
+/{
+   	 interrupt-parent = <&gic>;
+        //};
+	
+        
 	modem_reset: modem-reset {
 		reset-gpios = <&gpio3 5 GPIO_ACTIVE_HIGH>;
 	};
@@ -17,10 +35,19 @@
 		status = "okay";
 	};
 
-	bcmdhd_wlan_0: bcmdhd_wlan@0 {
+/*	bcmdhd_wlan_0: bcmdhd_wlan@0 {
 		compatible = "android,bcmdhd_wlan";
-	};
+	};*/
 };
+
+&gpc {
+                  /delete-property/ interrupts;
+                  /delete-property/ interrupt-parent;
+                  /delete-property/ interrupt-controller;
+                  /delete-property/ broken-wake-request-signals;
+                  /delete-property/ #interrupt-cells;
+     };
+
 
 &pinctrl_usdhc2 {
 	fsl,pins = <
@@ -81,13 +108,16 @@
 	bus-width = <4>;
 	pinctrl-assert-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 	/delete-property/ cd-gpios;
+	enable-sdio-wakeup;
 	keep-power-in-suspend;
 	non-removable;
 	pm-ignore-notify;
+	wakeup-source;
 	cap-power-off;
 	wifi-host;
 	mmc-pwrseq = <&usdhc2_pwrseq>;
 	status = "okay";
+
 };
 
 &gpio5 {

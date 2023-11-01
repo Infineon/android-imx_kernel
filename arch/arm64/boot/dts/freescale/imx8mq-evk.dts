@@ -71,7 +71,7 @@
 		};
 	};
 
-	reg_usdhc2_vmmc: regulator-vsd-3v3 {
+	/*reg_usdhc2_vmmc: regulator-vsd-3v3 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_reg_usdhc2>;
 		compatible = "regulator-fixed";
@@ -81,7 +81,36 @@
 		gpio = <&gpio2 19 GPIO_ACTIVE_HIGH>;
 		off-on-delay-us = <20000>;
 		enable-active-high;
-	};
+	};*/
+
+	wlreg_on: fixedregulator@100 {
+               pinctrl-names = "default";
+               pinctrl-0 = <&pinctrl_reg_usdhc2>;
+               compatible = "regulator-fixed";
+               regulator-min-microvolt = <3300000>;
+               regulator-max-microvolt = <3300000>;
+               regulator-name = "wlreg_on";
+               gpio = <&gpio2 19 GPIO_ACTIVE_HIGH>;
+               off-on-delay = <20000>;
+               enable-active-high;
+        };
+
+       bcmdhd_wlan_0: bcmdhd_wlan@0 {
+               reg = <1>;
+               compatible = "android,bcmdhd_wlan";
+               interrupt-parent = <&gpio5>;
+               //gpio = 144
+               gpios = <&gpio5 16 GPIO_ACTIVE_LOW>;
+               //gpios = <&gpio5 16 GPIO_ACTIVE_HIGH>;
+               //gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;
+               //interrupts = <6 IRQ_TYPE_LEVEL_LOW>;  //WL_HOST_WAKE
+               interrupts = <16 IRQ_TYPE_LEVEL_HIGH>; /* WL_HOST_WAKE = GPIO2_IO09 active high for M.2. */
+               /* GPIO5_IO16 */
+               interrupt-names = "host-wake";
+               //   WL_HOST_WAKE: SD2_DAT1 (gpio6 9)
+               //   gpios = <&gpio6 9 0>;
+               wlreg_on-supply = <&wlreg_on>;
+        };
 
 	buck2_reg: regulator-buck2 {
 		pinctrl-names = "default";
@@ -561,8 +590,9 @@
 &i2c2 {
 	clock-frequency = <100000>;
 	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c2>;
-	status = "okay";
+//	pinctrl-0 = <&pinctrl_i2c2>;
+//	status = "okay";
+	status = "disabled";
 
 	ov5640_mipi: ov5640_mipi@3c {
 		compatible = "ovti,ov5640_mipi";
@@ -588,7 +618,7 @@
 };
 
 &pcie0 {
-	pinctrl-names = "default";
+/*	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pcie0>;
 	reset-gpio = <&gpio5 28 GPIO_ACTIVE_LOW>;
 	clocks = <&clk IMX8MQ_CLK_PCIE1_ROOT>,
@@ -607,7 +637,8 @@
 	hard-wired = <1>;
 	vph-supply = <&vgen5_reg>;
 	l1ss-disabled;
-	status = "okay";
+	status = "okay";*/
+	status = "disabled";
 };
 
 &pcie1 {
@@ -847,12 +878,19 @@
 &usdhc2 {
 	assigned-clocks = <&clk IMX8MQ_CLK_USDHC2>;
 	assigned-clock-rates = <200000000>;
-	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	/*pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
-	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;*/
+	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_reg_usdhc2>;
+	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_reg_usdhc2>;
+	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_reg_usdhc2>;
 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
-	vmmc-supply = <&reg_usdhc2_vmmc>;
+	/*vmmc-supply = <&reg_usdhc2_vmmc>;*/
+	vmmc-supply = <&wlreg_on>;
+        cap-power-off-card;
+        wifi-host;
+        cd-post;
 	status = "okay";
 };
 
