@@ -641,7 +641,7 @@ EXTRA_CFLAGS += -DSRCBASE=\"$(src)\"
 EXTRA_CFLAGS += -I$(src)/include/ -I$(src)/
 KBUILD_CFLAGS += -I$(KDIR)/include -I$(CURDIR)
 
-EXTRA_CFLAGS += -I/home/hatchet2.ivcs/utture/imx8/Android13/vendor/nxp-opensource/kernel_imx/drivers/net/wireless/bcmdhd/include/ -I/home/hatchet2.ivcs/utture/imx8/Android13/vendor/nxp-opensource/kernel_imx/drivers/net/wireless/bcmdhd/include/
+EXTRA_CFLAGS += -I$(srctree)/drivers/net/wireless/bcmdhd -I$(srctree)/drivers/net/wireless/bcmdhd/include
 
 ifneq ($(CONFIG_BCMDHD),)
 bcmdhd-objs := $(DHDOFILES)
