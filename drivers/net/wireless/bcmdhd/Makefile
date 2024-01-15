@@ -41,8 +41,6 @@ DHDCFLAGS += -Wall -Wstrict-prototypes -Dlinux -DLINUX -DBCMDRIVER            \
 	-DDHD_RND_DEBUG -DDHD_DUMP_FILE_WRITE_FROM_KERNEL		\
 	-DDHD_DONOT_FORWARD_BCMEVENT_AS_NETWORK_PKT
 
-DHDCFLAGS += -Wno-unknown-warning-option -Wno-unused-function
-
 GCCVERSIONGTEQ9 := $(shell expr `$(CROSS_COMPILE)gcc -dumpversion | cut -f1 -d.` \>= 9)
 ifeq "$(GCCVERSIONGTEQ9)" "1"
     DHDCFLAGS += -Wno-error=date-time
@@ -66,6 +64,7 @@ CONFIG_BCMDHD_SDMMC=y
 CONFIG_FCIPA_CHIP=y
 CONFIG_BCMDHD_SDIO=y
 CONFIG_ANDROID13=y
+CONFIG_ANDROID_VERSION=13
 
 
 #################
@@ -238,25 +237,20 @@ ifeq ($(CONFIG_ANDROID),y)
   DHDCFLAGS += -DKEEP_WIFION_OPTION
   DHDCFLAGS += -Wno-date-time
 
-# Android features
-# for Android 11
-ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \== 11), 1)
- DHDCFLAGS += -DCONFIG_ANDROID_VERSION=$(CONFIG_ANDROID_VERSION)
-endif
-
-# for Android 12 and higher
-#ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \>= 12), 1)
+#Android features
+ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \>= 12), 1)
 # For android toolchain.
  DHDCFLAGS += -Wno-unused-const-variable
  DHDCFLAGS += -Wno-unneeded-internal-declaration
-#ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \>= 13), 1)
+ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \>= 13), 1)
  DHDCFLAGS += -Wno-unused-but-set-variable
 # Disabling this flag for hikey, since hikey supports only 5.4 kernel for android13
-#ifneq ($(CONFIG_HAVE_HIKEY_SOC),y)
+ifneq ($(CONFIG_HAVE_HIKEY_SOC),y)
  DHDCFLAGS += -DDHD_ANDROID_KERNEL5_15_SUPPORT
-#endif
-#endif
+endif
+endif
 
+ DHDCFLAGS += -DCONFIG_ANDROID_VERSION=$(CONFIG_ANDROID_VERSION)
  DHDCFLAGS += -DP2P_RAND
  DHDCFLAGS += -DSOFTAP_RAND
  DHDCFLAGS += -DSTA_RAND
@@ -275,7 +269,7 @@ DHDCFLAGS += -DDHD_SUPPORT_REQFW_FOR_FIRMWARE_DOWNLOADING -DDHD_DENY_DIRECT_FS_A
 
 # To support ACS on hostapd
  DHDCFLAGS += -DWL_SUPPORT_ACS_OFFLOAD
-#endif
+endif
 endif
 
 # SoftAP
@@ -393,7 +387,7 @@ ifeq ($(CONFIG_FCIPA_CHIP),y)
   DHDCFLAGS += -DFCIPA_CHIP
 endif
 ifeq ($(shell expr $(CONFIG_ANDROID_VERSION) \>= 13), 1)
-  DHDCFLAGS += -Wno-unused-function
+  DHDCFLAGS += -Wno-unused-function -Wno-unknown-warning-option
 endif
 endif
 endif
@@ -638,7 +632,7 @@ ifneq ($(CONFIG_QT),y)
 endif
 EXTRA_CFLAGS += $(DHDCFLAGS) -DDHD_DEBUG
 EXTRA_CFLAGS += -DSRCBASE=\"$(src)\"
-EXTRA_CFLAGS += -I$(src)/include/ -I$(src)/
+#EXTRA_CFLAGS += -I$(src)/include/ -I$(src)/
 KBUILD_CFLAGS += -I$(KDIR)/include -I$(CURDIR)
 
 EXTRA_CFLAGS += -I$(srctree)/drivers/net/wireless/bcmdhd -I$(srctree)/drivers/net/wireless/bcmdhd/include
